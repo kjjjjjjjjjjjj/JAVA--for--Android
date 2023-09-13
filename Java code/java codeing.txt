@@ -1,0 +1,52 @@
+int getNumberOfSides(Shape shape) {
+    return switch (shape) {
+        case WeirdTriangle t -> t.getNumberOfSides();
+        case Circle c -> c.getNumberOfSides();
+        case Triangle t -> t.getNumberOfSides();
+        case Rectangle r -> r.getNumberOfSides();
+        case Square s -> s.getNumberOfSides();
+    };
+}private static final SymbolLookup libLookup;
+
+static {
+    // loads a particular C library
+    var path = JEP412.class.getResource("/print_name.so").getPath();
+    System.load(path);
+    libLookup = SymbolLookup.loaderLookup();
+}public String getPrintNameFormat(String name) {
+
+    var printMethod = libLookup.lookup("printName");
+
+    if (printMethod.isPresent()) {
+        var methodReference = CLinker.getInstance()
+            .downcallHandle(
+                printMethod.get(),
+                MethodType.methodType(MemoryAddress.class, MemoryAddress.class),
+                FunctionDescriptor.of(CLinker.C_POINTER, CLinker.C_POINTER)
+            );
+
+        try {
+            var nativeString = CLinker.toCString(name, newImplicitScope());
+            var invokeReturn = methodReference.invoke(nativeString.address());
+            var memoryAddress = (MemoryAddress) invokeReturn;
+            return CLinker.toJavaString(memoryAddress);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+    }
+    throw new RuntimeException("printName function not found.");
+}public void newVectorComputation(float[] a, float[] b, float[] c) {
+    for (var i = 0; i < a.length; i += SPECIES.length()) {
+        var m = SPECIES.indexInRange(i, a.length);
+        var va = FloatVector.fromArray(SPECIES, a, i, m);
+        var vb = FloatVector.fromArray(SPECIES, b, i, m);
+        var vc = va.mul(vb);
+        vc.intoArray(c, i, m);
+    }
+}
+
+public void commonVectorComputation(float[] a, float[] b, float[] c) {
+    for (var i = 0; i < a.length; i ++) {
+        c[i] = a[i] * b[i];
+    }
+}
