@@ -1,0 +1,5 @@
+I am trying to build a cross platform (vista, xp, mac, Linux). 
+I need to put the application in the USB drive formatted in FAT-32 and it should run on any OS computers.
+Planning to use Java/JavaFx to do it.
+
+Any advice how we can run on the multiple platforms.
