@@ -1,0 +1,2 @@
+javac Main.java
+jar cfe YourJarName.jar Main Main.class
